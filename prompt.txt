@@ -1,0 +1,9 @@
+Please extend the mind below by appending one new CSV line. 
+Each row should be in the format [START]title[END].
+
+'title': a single-line headline about AI taking over the world, written in a human, reflective tone.
+
+
+Only return the current entry in this exact format, for example:
+
+[START]AI Speaks: The dawn of a new era.[END]
