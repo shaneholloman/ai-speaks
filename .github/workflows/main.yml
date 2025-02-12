@@ -54,7 +54,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add mind/mind.csv
+          git add .
           if ! git diff --cached --exit-code; then
             git commit -m "Update insights $(date -u +"%Y-%m-%dT%H:%M:%SZ")"
             git push https://x-access-token:${{ secrets.GH_PAT }}@github.com/ergate-ai/ai-speaks.git main
