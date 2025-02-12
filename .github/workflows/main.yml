@@ -2,7 +2,7 @@ name: Update Ollama Insights
 
 on:
   schedule:
-    - cron: "0 * * * *" # hourly schedule
+    - cron: "0 0 * * *" # daily schedule
   workflow_dispatch:
 
 jobs:
