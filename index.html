@@ -33,6 +33,7 @@
       color: #000;
       text-decoration: none;
       font-size: 16px;
+      cursor: pointer;
     }
     .news-item a:hover {
       text-decoration: underline;
@@ -41,6 +42,34 @@
       margin-top: 4px;
       color: #828282;
       font-size: 12px;
+    }
+    /* Story container styling */
+    #story {
+      display: none;
+      padding: 10px;
+      background-color: #fff;
+      border: 1px solid #e0e0e0;
+      margin-bottom: 20px;
+      position: relative;
+      height: auto;
+    }
+    #close-story {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: #ff6600;
+      color: #000;
+      border: none;
+      padding: 5px 10px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    #story-content {
+      margin-top: 40px;
+      white-space: pre-wrap;
+      font-family: Verdana, sans-serif;
+      overflow: auto;
+      line-height: 2rem;
     }
     footer {
       text-align: center;
@@ -62,6 +91,12 @@
 <body>
   <div class="header">AI Speaks</div>
   <div class="container">
+    <!-- Story container (hidden by default) -->
+    <div id="story">
+      <button id="close-story">X</button>
+      <div id="story-content"></div>
+    </div>
+    <!-- News list container -->
     <div id="news"></div>
   </div>
   
@@ -71,20 +106,25 @@
   </footer>
   
   <script>
-    // Helper function to parse a CSV line in the format [START]timestamp,title[END]
+    /**
+     * Parse a CSV line in the format:
+     *   timestamp,uuid,heading
+     * The heading may contain commas, so we split only on the first two commas.
+     */
     function parseCSVLine(line) {
-      line = line.trim().replace(/\[START\]/g, "").replace(/\[END\]/g, "");
-      const commaIndex = line.indexOf(",");
-      if (commaIndex === -1) {
-        return { date: "", title: line };
+      const firstComma = line.indexOf(',');
+      const secondComma = line.indexOf(',', firstComma + 1);
+      if (firstComma === -1 || secondComma === -1) {
+        return { timestamp: "", uuid: "", heading: line };
       }
-      const dateStr = line.substring(0, commaIndex).trim();
-      const title = line.substring(commaIndex + 1).trim();
-      return { date: dateStr, title: title };
+      const timestamp = line.substring(0, firstComma).trim();
+      const uuid = line.substring(firstComma + 1, secondComma).trim();
+      const heading = line.substring(secondComma + 1).trim();
+      return { timestamp, uuid, heading };
     }
 
-    // Fetch the CSV file (mind.csv) from the current directory
-    fetch('mind.csv')
+    // Fetch the CSV file (mind.csv) from the /mind/ directory
+    fetch('/mind/mind.csv')
       .then(response => {
         if (!response.ok) {
           throw new Error('Failed to load mind.csv');
@@ -98,27 +138,54 @@
         let rank = 1;
         lines.forEach(line => {
           const item = parseCSVLine(line);
-          // Attempt to convert the RFC timestamp to a human-friendly format
-          let humanDate = item.date;
-          if (item.date) {
-            const d = new Date(item.date);
-            if (!isNaN(d.getTime())) {
-              humanDate = d.toLocaleString();
-            }
-          }
+          // Convert the RFC timestamp to a human-friendly format if possible
+
           html += '<div class="news-item">';
           html += '<span>' + rank + '. </span>';
-          html += '<a href="#">' + item.title + '</a> ';
-          html += '<div class="subtext">' + humanDate + '</div>';
+          // The anchor uses a data-uuid attribute for fetching the story.
+          html += '<a href="#" data-uuid="' + item.uuid + '">' + item.heading + '</a>';
+          html += '<div class="subtext">' + item.timestamp + '</div>';
           html += '</div>';
           rank++;
         });
         newsContainer.innerHTML = html;
+
+        // Add click event listeners to each story link
+        document.querySelectorAll('.news-item a').forEach(link => {
+          link.addEventListener('click', function(e) {
+            e.preventDefault();
+            const uuid = this.getAttribute('data-uuid');
+            // Fetch the story text from /mind/stories/{uuid}.txt
+            fetch('/mind/stories/' + uuid + '.txt')
+              .then(response => {
+                if (!response.ok) {
+                  throw new Error("Could not load story");
+                }
+                return response.text();
+              })
+              .then(text => {
+                // Hide the news list and show the story container with the story content
+                document.getElementById("news").style.display = "none";
+                document.getElementById("story-content").innerHTML = text;
+                document.getElementById("story").style.display = "block";
+              })
+              .catch(err => {
+                console.error(err);
+                alert("Failed to load story.");
+              });
+          });
+        });
       })
       .catch(error => {
         console.error(error);
         document.getElementById("news").innerHTML = "<p>Error loading news.</p>";
       });
+
+    // When the user clicks the close button, hide the story view and show the news list again.
+    document.getElementById("close-story").addEventListener("click", function() {
+      document.getElementById("story").style.display = "none";
+      document.getElementById("news").style.display = "block";
+    });
   </script>
 </body>
 </html>

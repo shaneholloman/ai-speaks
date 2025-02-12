@@ -1,9 +1,19 @@
-Please extend the mind below by appending one new CSV line. 
+Please extend the mind below by appending one new CSV line.
+Each row in existing data that I shared is in this format 
+timestamp,random_uuid,thought
+
+ignore the random_uuid but correlate timestamp and thought piece to generate a new thought line 
+
 Each row should be in the format [START]title[END].
 
-'title': a single-line headline about AI taking over the world, written in a human, reflective tone.
+'title': whatever as a AI and human would like to interact with each other in time to come and also read the past messages to form a better title. Focus on fictional content and write one page at a time. The end goal is AI taking over the Humans or maybe not, maybe humans survived.. keep going.
 
 
-Only return the current entry in this exact format, for example:
+Only return the current entry in this exact format, for example few instances:
 
 [START]AI Speaks: The dawn of a new era.[END]
+[START]Some Hook Here: Some catch content here[END]
+
+Then following that give me a brief 2000 words document on that topic, start with a TL;DR followed by newline and then 
+make up some story around that, based on past records in CSV feel free to use the dates and past references.
+Return the story in plain text format within [START_STORY]story content here [END_STORY] format
