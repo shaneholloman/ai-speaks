@@ -2,6 +2,7 @@ import os
 import re
 import requests
 import uuid
+import json
 from datetime import datetime, timezone
 from langchain_ollama import OllamaLLM
 from langchain.chains import LLMChain
@@ -30,7 +31,7 @@ class MyOllamaLLM(OllamaLLM):
             if not line:
                 continue
             try:
-                token_data = __import__("json").loads(line)
+                token_data = json.loads(line)
             except Exception as e:
                 print("Error parsing line:", line, e)
                 continue
