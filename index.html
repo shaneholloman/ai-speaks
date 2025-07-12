@@ -111,6 +111,16 @@
   
   <script>
     /**
+     * Escape HTML special characters to prevent XSS
+     */
+    function escapeHTML(str) {
+      return str
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
+    }
+
+    /**
      * Parse a CSV line in the format:
      *   timestamp,uuid,heading
      * The heading may contain commas, so we split only on the first two commas.
@@ -147,7 +157,7 @@
           html += '<div class="news-item">';
           html += '<span>' + rank + '. </span>';
           // The anchor uses a data-uuid attribute for fetching the story.
-          html += '<a href="#" data-uuid="' + item.uuid + '">' + item.heading + '</a>';
+          html += '<a href="#" data-uuid="' + item.uuid + '">' + escapeHTML(item.heading) + '</a>';
           html += '<div class="subtext">' + item.timestamp + '</div>';
           html += '</div>';
           rank++;
@@ -170,7 +180,7 @@
               .then(text => {
                 // Hide the news list and show the story container with the story content
                 document.getElementById("news").style.display = "none";
-                document.getElementById("story-content").innerHTML = text;
+                document.getElementById("story-content").textContent = text;
                 document.getElementById("story").style.display = "block";
               })
               .catch(err => {
